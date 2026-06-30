@@ -183,35 +183,35 @@ type SendMessageToChatRequest struct {
 }
 
 type GetChatParams struct {
-	ChatId int64 `form:"chatId" json:"chatId"`
+	ChatId int64 `url:"chatId" json:"chatId"`
 }
 
 type GetChatsParams struct {
-	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+	PageToken *string `url:"pageToken,omitempty" json:"pageToken,omitempty"`
 
-	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+	Limit *int32 `url:"limit,omitempty" json:"limit,omitempty"`
 }
 
 type SendFileToChatParams struct {
-	ChatId int64 `form:"chatId" json:"chatId"`
+	ChatId int64 `url:"chatId" json:"chatId"`
 }
 
 type GetChatHistoryParams struct {
-	ChatId int64 `form:"chatId" json:"chatId"`
+	ChatId int64 `url:"chatId" json:"chatId"`
 
-	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+	PageToken *string `url:"pageToken,omitempty" json:"pageToken,omitempty"`
 
-	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+	Limit *int32 `url:"limit,omitempty" json:"limit,omitempty"`
 }
 
 type GetChatMessageParams struct {
-	ChatId int64 `form:"chatId" json:"chatId"`
+	ChatId int64 `url:"chatId" json:"chatId"`
 
-	MessageId int64 `form:"messageId" json:"messageId"`
+	MessageId int64 `url:"messageId" json:"messageId"`
 }
 
 type SendMessageToChatParams struct {
-	ChatId int64 `form:"chatId" json:"chatId"`
+	ChatId int64 `url:"chatId" json:"chatId"`
 }
 
 type GetChatsJSONRequestBody = GetChatsRequest
