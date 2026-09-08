@@ -5,12 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
-	"mime"
 	"mime/multipart"
 	"net/http"
-	"net/textproto"
 	"path"
 	"strings"
 
@@ -172,20 +169,14 @@ func (c *Client) SendFileToChat(ctx context.Context, businessId int64, params *m
 	if err != nil {
 		return nil, err
 	}
+	if len(data) == 0 {
+		return nil, errors.New("file is empty")
+	}
 	filename := safeMultipartFilename(body.File.Filename())
 
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
-
-	header := make(textproto.MIMEHeader)
-	header.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, "file", filename))
-	if ct := mime.TypeByExtension(path.Ext(filename)); ct != "" {
-		header.Set("Content-Type", ct)
-	} else {
-		header.Set("Content-Type", "application/octet-stream")
-	}
-
-	part, err := writer.CreatePart(header)
+	part, err := writer.CreateFormFile("file", filename)
 	if err != nil {
 		return nil, err
 	}
@@ -196,11 +187,12 @@ func (c *Client) SendFileToChat(ctx context.Context, businessId int64, params *m
 		return nil, err
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "POST", requestURL, &buf)
+	req, err := http.NewRequestWithContext(ctx, "POST", requestURL, bytes.NewReader(buf.Bytes()))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.ContentLength = int64(buf.Len())
 
 	var response models.EmptyApiResponse
 	if err = c.Send(req, &response); err != nil {
