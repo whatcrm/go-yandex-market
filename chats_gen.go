@@ -5,9 +5,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
+	"mime"
 	"mime/multipart"
 	"net/http"
+	"net/textproto"
+	"path"
+	"strings"
 
 	"github.com/whatcrm/go-yandex-market/models"
 	"github.com/whatcrm/go-yandex-market/utils"
@@ -167,14 +172,20 @@ func (c *Client) SendFileToChat(ctx context.Context, businessId int64, params *m
 	if err != nil {
 		return nil, err
 	}
-	filename := body.File.Filename()
-	if filename == "" {
-		filename = "file"
-	}
+	filename := safeMultipartFilename(body.File.Filename())
 
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
-	part, err := writer.CreateFormFile("file", filename)
+
+	header := make(textproto.MIMEHeader)
+	header.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, "file", filename))
+	if ct := mime.TypeByExtension(path.Ext(filename)); ct != "" {
+		header.Set("Content-Type", ct)
+	} else {
+		header.Set("Content-Type", "application/octet-stream")
+	}
+
+	part, err := writer.CreatePart(header)
 	if err != nil {
 		return nil, err
 	}
@@ -196,6 +207,34 @@ func (c *Client) SendFileToChat(ctx context.Context, businessId int64, params *m
 		return nil, err
 	}
 	return &response, nil
+}
+
+func safeMultipartFilename(name string) string {
+	name = path.Base(strings.TrimSpace(name))
+	if name == "" || name == "." || name == "/" {
+		return "file"
+	}
+
+	ext := strings.ToLower(path.Ext(name))
+	base := strings.TrimSuffix(name, path.Ext(name))
+
+	var b strings.Builder
+	for _, r := range base {
+		switch {
+		case r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z', r >= '0' && r <= '9', r == '-', r == '_', r == '.':
+			b.WriteRune(r)
+		case r == ' ' || r == '(' || r == ')' || r == '[' || r == ']':
+			b.WriteByte('_')
+		}
+	}
+	if b.Len() == 0 {
+		b.WriteString("file")
+	}
+
+	if ext != "" && !strings.ContainsAny(ext, "/\\") {
+		return b.String() + ext
+	}
+	return b.String()
 }
 
 func (c *Client) SendMessageToChat(ctx context.Context, businessId int64, params *models.SendMessageToChatParams, body *models.SendMessageToChatRequest) (*models.EmptyApiResponse, error) {
