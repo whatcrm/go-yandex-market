@@ -25,8 +25,6 @@ type CampaignDTO struct {
 
 	Business *BusinessDTO `json:"business,omitempty"`
 
-	ClientId *int64 `json:"clientId,omitempty"`
-
 	Domain *string `json:"domain,omitempty"`
 
 	Id *int64 `json:"id,omitempty"`
@@ -164,10 +162,6 @@ type GetCampaignsParams struct {
 	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
-
-	Page *int32 `form:"page,omitempty" json:"page,omitempty"`
-
-	PageSize *int32 `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 }
 
 type GetCampaignOffersParams struct {

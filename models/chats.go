@@ -129,8 +129,6 @@ type GetChatInfoDTO struct {
 
 	CreatedAt time.Time `json:"createdAt"`
 
-	OrderId *int64 `json:"orderId,omitempty"`
-
 	Status ChatStatusType `json:"status"`
 
 	Type ChatType `json:"type"`
@@ -160,8 +158,6 @@ type GetChatsRequest struct {
 	ContextTypes *[]ChatContextType `json:"contextTypes,omitempty"`
 
 	Contexts *[]ChatContextDTO `json:"contexts,omitempty"`
-
-	OrderIds *[]int64 `json:"orderIds,omitempty"`
 
 	Statuses *[]ChatStatusType `json:"statuses,omitempty"`
 
